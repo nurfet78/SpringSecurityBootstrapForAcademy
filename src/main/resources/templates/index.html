@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:with="lang=${#locale.language}" th:lang="${lang}">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Page</title>
+    <link href="/webjars/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+<section class="col-xs-1" align="center">
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <span class="align-middle" sec:authorize="hasAuthority('ROLE_ADMIN')"><a class="nav-link" th:href="@{/admin/new}">Create new user</a></span>
+        </li>
+        <li class="nav-item">
+            <span class="align-middle" sec:authorize="hasAuthority('ROLE_ADMIN')"><a class="nav-link" th:href="@{/admin}">User list</a></span>
+        </li>
+        <li class="nav-item">
+            <span class="align-middle" sec:authorize="hasAuthority('ROLE_ADMIN')"><a class="nav-link" th:href="@{/admin}">Show admin profile</a></span>
+        </li>
+        <li class="nav-item">
+            <span class="align-middle" sec:authorize="hasAuthority('ROLE_GUEST')"><a class="nav-link" th:href="@{/guest}">Show guest profile</a></span>
+        </li>
+        <li class="nav-item">
+<!--            <span class="align-middle" sec:authorize="isAuthenticated()"><a class="nav-link" th:href="@{/user}">Show profile</a></span>-->
+            <span class="align-middle" sec:authorize="hasAuthority('ROLE_USER')"><a class="nav-link" th:href="@{/user}">Show user profile</a></span>
+        </li>
+    </ul>
+</section>
+<div class="container pt-4">
+    <div class="row d-flex justify-content-center">
+        <div class="col-auto">
+            <div class="jumbotron">
+                <th:block sec:authorize="isAuthenticated()">
+                    <p class="font-weight-bold">You authenticated as <span sec:authentication="name"></span></p>
+                    <hr class="my-4"/>
+                    <p><a type="button" th:href="@{/logout}" class="btn btn-secondary bg-secondary text-white">Logout</a></p>
+                </th:block>
+
+                <th:block th:if="${authenticationName}">
+                    <p class="font-weight-bold" th:text="|Good bye, ${authenticationName}!|"/>
+                    <hr class="my-4"/>
+                </th:block>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<th:block sec:authorize="!isAuthenticated()">
+    <form th:action="@{/}" method="post">
+        <div class="text-center p-5">
+            <p class="h2 fw-bold" style="text-align: center">Please sign in</p>
+            <p>In first time using <b>admin@gmail.com : admin</b></p>
+            <div class="form-floating w-25 mx-auto">
+                <input type="text" class="form-control mb-1" id="email" placeholder="Email address" name="email" th:value="${authenticationException.getEmail()}" autofocus="autofocus">
+                <label for="email">Email address</label>
+            </div>
+            <div class="form-floating mb-2 w-25 mx-auto">
+                <input type="password" class="form-control" id="password" placeholder="Password" name="password" th:value="${authenticationException.getPassword()}">
+                <label for="password">Password</label>
+            </div>
+
+            <button type="submit" value="Sign In" class="btn btn-primary btn-lg w-25">Sign in</button>
+            <div th:if="${authenticationException.getMessage()}" class="alert alert-danger mb-0" role="alert" th:text="${authenticationException.getMessage()}"></div>
+
+        </div>
+    </form>
+</th:block>
+</body>
+</html>

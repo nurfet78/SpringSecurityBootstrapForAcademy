@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:with="lang=${#locale.language}" th:lang="${lang}">
+<head>
+    <meta charset="UTF-8">
+    <title>Create User</title>
+    <link href="/webjars/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        .error-container{
+            position:absolute;
+            bottom:0;
+            right:20px;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg bg-body-tertiary bg-dark border-bottom border-bottom-dark text-white" data-bs-theme="dark">
+    <div class="container-fluid">
+        <p class="navbar-brand me-auto mb-2 mb-lg-0">
+            <b class="align-middle" th:inline="text"><span th:remove="tag" sec:authentication="name">thymeleaf</span></b>
+            <span class="align-middle" th:inline="text">with roles:</span>
+            <span class="align-middle" sec:authorize="hasAuthority('ROLE_ADMIN')">ADMIN</span>
+            <span class="align-middle" sec:authorize="hasAuthority('ROLE_USER')">USER</span>
+        </p>
+        <form class="d-flex" th:action="@{/logout}" method="post">
+            <button class="btn btn-outline-success" type="submit">Logout</button>
+        </form>
+    </div>
+</nav>
+
+<section>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-2 p-0">
+                <div class="nav flex-column nav-pills pt-4" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                    <a class="nav-link active" aria-controls="v-pills-home" aria-selected="true">Admin</a>
+                    <a class="nav-item nav-link" th:href="@{/user}">User</a>
+                </div>
+            </div>
+            <div class="col-10 px-0">
+                <div class="container-fluid">
+                    <h1 class="m-3 fw-bold">Admin panel</h1>
+                    <div class="tab-content" id="tabContent">
+                        <ul class="nav nav-tabs">
+                            <a class="nav-link" data-toggle="tab" href="/admin">Users Table</a>
+                            <a class="nav-link active" data-toggle="tab">New User</a>
+                        </ul>
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="m-1">
+                                    <h4>Add new user</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md bg-white border">
+                            <form align="center" class="offset-md-4 col-md-3 mt-4 mb-4"
+                                  th:align="center"
+                                  th:action="@{/admin}" th:object="${user}" method="POST">
+                                <input type="hidden" th:field="*{id}" th:value="*{getId()}">
+
+                                <label for="firstName">First Name</label>
+                                <input type="text" class="form-control" placeholder="Enter First name"
+                                       th:classappend="${bindingResult} and ${bindingResult.hasFieldErrors('firstName')} ? 'is-invalid'" th:field="*{firstName}" th:value="*{getFirstName()}" id="firstName" autocomplete="firstName">
+                                <th:block th:if="${bindingResult} and ${bindingResult.hasFieldErrors('firstName')}">
+                                    <div class="invalid-feedback" th:each="error : ${bindingResult.getFieldErrors('firstName')}" th:text="${error.getDefaultMessage()}"/>
+                                </th:block>
+                                <br>
+
+                                <label for="firstName">Last Name</label>
+                                <input type="text" class="form-control" placeholder="Enter Last name"
+                                       th:classappend="${bindingResult} and ${bindingResult.hasFieldErrors('lastName')} ? 'is-invalid'" th:field="*{lastName}" th:value="*{getLastName()}" id="lastName" autocomplete="lastName">
+                                <th:block th:if="${bindingResult} and ${bindingResult.hasFieldErrors('lastName')}">
+                                    <div class="invalid-feedback" th:each="error : ${bindingResult.getFieldErrors('lastName')}" th:text="${error.getDefaultMessage()}"/>
+                                </th:block>
+
+                                <br>
+                                <label for="newEmail">E-mail</label>
+                                <input type="text" class="form-control" placeholder="Enter e-mail"
+                                       th:classappend="${bindingResult} and ${bindingResult.hasFieldErrors('email')} ? 'is-invalid'" th:field="*{email}" th:value="*{getEmail()}" id="newEmail" autocomplete="username">
+                                <th:block th:if="${bindingResult} and ${bindingResult.hasFieldErrors('email')}">
+                                    <div class="invalid-feedback" th:each="error : ${bindingResult.getFieldErrors('email')}" th:text="${error.getDefaultMessage()}"/>
+                                </th:block>
+
+                                <br>
+                                <label for="newPassword">Password</label>
+                                <input type="password" class="form-control" placeholder="Enter password"
+                                       th:classappend="${bindingResult} and ${bindingResult.hasFieldErrors('password')} ? 'is-invalid'" id="newPassword" name="password" autocomplete="current-password">
+                                <th:block th:if="${bindingResult} and ${bindingResult.hasFieldErrors('password')}">
+                                    <div class="invalid-feedback" th:each="error : ${bindingResult.getFieldErrors('password')}" th:text="${error.getDefaultMessage()}"/>
+                                </th:block>
+                                <br>
+
+                                <br>
+                                <label for="roles"><b>Role</b></label>
+                                <select multiple class="form-control form-control-sm" id="roles" name="roles" size="2" required>
+                                    <option th:each="role : ${allRoles}" th:value="${role.id}" th:selected="${user.hasRole('__${role.name}__')}">
+                                        <th:block th:text="${role.name}">
+                                        </th:block>
+                                    </option>
+                                </select>
+                                <div class="col-md-6 mb-3">
+                                    <label for="enabled-row">&nbsp;</label>
+                                    <div id="enabled-row">
+                                        <div class="form-check form-check-inline">
+                                            <input type="checkbox" class="form-check-input" name="roles" th:checked="*{isEnabled()}" id="enabled" th:field="*{enabled}">
+                                            <label class="form-check-label" for="enabled">Is enabled</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="d-flex justify-content-start align-items-center form-row">
+                                    <div class="mr-3">
+                                        <button class="btn btn-success" type="submit" th:text="*{getId()} ? 'Save' : 'Create'"/>
+                                        <a class="btn btn-light border-dark" href="/admin">Cancel</a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

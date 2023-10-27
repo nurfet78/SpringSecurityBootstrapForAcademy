@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:with="lang=${#locale.language}" th:lang="${lang}">
+<head>
+    <meta charset="UTF-8">
+    <title>User Page</title>
+    <link href="/webjars/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg bg-body-tertiary bg-dark border-bottom border-bottom-dark text-white" data-bs-theme="dark" th:object="${user}">
+    <div class="container-fluid">
+        <p class="navbar-brand me-auto mb-2 mb-lg-0">
+            <b class="align-middle" th:inline="text"><span th:remove="tag" sec:authentication="name">thymeleaf</span></b>
+            <span class="align-middle" th:inline="text">with roles:</span>
+            <span class="align-middle" sec:authorize="hasAuthority('ROLE_ADMIN')">ADMIN</span>
+            <span class="align-middle" sec:authorize="hasAuthority('ROLE_USER')">USER</span>
+        </p>
+        <form class="d-flex" th:action="@{/logout}" method="post">
+            <button class="btn btn-outline-success" type="submit">Logout</button>
+        </form>
+    </div>
+</nav>
+<div class="container-fluid h-100" th:object="${user}">
+    <div class="row h-100">
+
+        <div class="p-0 col-2">
+            <div class="nav flex-column nav-pills pt-4" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                <a class="nav-link" href="/admin" sec:authorize="hasAuthority('ROLE_ADMIN')" role="tab"
+                   aria-controls="v-pills-home" aria-selected="true">Admin</a>
+                <a class="nav-link active" href="/user" sec:authorize="(hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER'))" role="tab"
+                   aria-controls="v-pills-profile" aria-selected="false">User</a>
+            </div>
+        </div>
+
+        <div class="p-0 col-10 bg-light">
+            <div class="tabs p-4">
+                <h1>User information page</h1>
+                <div class="pt-2 tab-content">
+                    <div class="tab-pane fade show active" id="description">
+                        <div class="p-3 border">
+                            <h5 class="my-0 mx-2">User info</h5>
+                        </div>
+                        <div class="p-3 bg-white border border-top-0">
+                            <table class="usersTable table table-striped bg-white">
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>First Name</th>
+                                    <th>Last Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td th:text="*{getId()}"></td>
+                                    <td th:text="*{firstName}"></td>
+                                    <td th:text="*{lastName}"></td>
+                                    <td th:text="*{email}"></td>
+                                    <td>
+                                        <th:block th:each="role: *{getRoles()}"
+                                                  th:text="${role.name} + ' '">
+                                        </th:block>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
